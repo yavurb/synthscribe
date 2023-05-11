@@ -1,1 +1,1 @@
-# synthscribe
+# Synthscribe
