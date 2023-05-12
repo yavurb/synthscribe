@@ -41,7 +41,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     if (await this.lookupAccount({ email: userInfo.email }))
-      throw new HttpException('Emails already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
 
     const passwordHash = await bcrypt.hash(userInfo.password, 10);
     const user = new this.userModel({
