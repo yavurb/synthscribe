@@ -7,7 +7,7 @@ import { User, UserDocument } from './schemas/User.schema';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
-import { SingUpDto } from './dtos';
+import { SingInDto, SingUpDto } from './dtos';
 import { UserFilters } from './types';
 
 @Injectable()
@@ -55,5 +55,27 @@ export class AuthService {
     const token = await this.jwtService.signAsync({ userId: newUser._id });
 
     return { token, userId: newUser._id.toString() };
+  }
+
+  async signin(singinInfo: SingInDto): Promise<{ token: string }> {
+    const user = await this.userModel
+      .findOne({ email: singinInfo.email })
+      .exec();
+    if (!user)
+      throw new HttpException('User do not exists', HttpStatus.NOT_FOUND);
+
+    const passwordMathed = await bcrypt.compare(
+      singinInfo.password,
+      user.password,
+    );
+    if (!passwordMathed)
+      throw new HttpException('Incorrect password', HttpStatus.BAD_REQUEST);
+
+    const sessinPayload = {
+      userId: user._id,
+    };
+    const token = await this.jwtService.signAsync(sessinPayload);
+
+    return { token };
   }
 }

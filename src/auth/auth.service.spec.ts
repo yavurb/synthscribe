@@ -72,4 +72,15 @@ describe('Auth Service', () => {
       ).rejects.toThrow('Email already exists');
     });
   });
+
+  describe('Basic Signin', () => {
+    it('Should signin an existing user', async () => {
+      const user = await authService.signin({
+        email: 'testmail@testmail.com',
+        password: 'random/.Password123',
+      });
+
+      expect(user).toHaveProperty('token');
+    });
+  });
 });
