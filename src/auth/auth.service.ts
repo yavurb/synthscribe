@@ -35,7 +35,7 @@ export class AuthService {
     userInfo: SingUpDto,
   ): Promise<{ token: string; userId: string }> {
     // * Guard Statements
-    if (await this.lookupAccount({ email: userInfo.email }))
+    if (await this.lookupAccount({ username: userInfo.username }))
       throw new HttpException(
         'Username already exists',
         HttpStatus.BAD_REQUEST,
