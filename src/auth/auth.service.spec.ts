@@ -74,13 +74,33 @@ describe('Auth Service', () => {
   });
 
   describe('Basic Signin', () => {
+    const userInfo = {
+      email: 'testmail@testmail.com',
+      password: 'random/.Password123',
+    };
+
     it('Should signin an existing user', async () => {
-      const user = await authService.signin({
-        email: 'testmail@testmail.com',
-        password: 'random/.Password123',
-      });
+      const user = await authService.signin(userInfo);
 
       expect(user).toHaveProperty('token');
+    });
+
+    it('Should throw an error if user does not exits', () => {
+      expect(
+        authService.signin({
+          email: 'wrongemail@testmail.com',
+          password: '',
+        }),
+      ).rejects.toThrow('User do not exists');
+    });
+
+    it('Should throw if password is incorrect', () => {
+      expect(
+        authService.signin({
+          ...userInfo,
+          password: 'wrongpassword',
+        }),
+      ).rejects.toThrow('Password do not match');
     });
   });
 });

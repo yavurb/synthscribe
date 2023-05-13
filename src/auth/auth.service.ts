@@ -69,7 +69,7 @@ export class AuthService {
       user.password,
     );
     if (!passwordMathed)
-      throw new HttpException('Incorrect password', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Password do not match', HttpStatus.BAD_REQUEST);
 
     const sessinPayload = {
       userId: user._id,
