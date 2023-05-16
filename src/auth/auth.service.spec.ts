@@ -6,7 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AuthService } from './auth.service';
 import { User, UserSchema } from './schemas/User.schema';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
 import { UserSeed } from './seeds/user.seed';
@@ -16,6 +16,7 @@ describe('Auth Service', () => {
   let app: INestApplication;
   let authService: AuthService;
   let mongo: MongoMemoryServer;
+  let configService: ConfigService;
   let userSeed: UserSeed;
 
   beforeAll(async () => {
@@ -40,6 +41,7 @@ describe('Auth Service', () => {
     await app.init();
 
     authService = app.get<AuthService>(AuthService);
+    configService = app.get<ConfigService>(ConfigService);
     userSeed = app.get<UserSeed>(UserSeed);
 
     await userSeed.injectUser();
@@ -116,10 +118,11 @@ describe('Auth Service', () => {
 
   describe('Get API token', () => {
     it('Should create a new API token', async () => {
+      const APIKEY_PREFIX = configService.get<string>('APIKEY_PREFIX');
       const response = await authService.getApiToken(userSeed.userID);
 
       expect(typeof response.apikey).toBe('string');
-      expect(response.apikey.startsWith('sytk')).toBeTruthy();
+      expect(response.apikey.startsWith(APIKEY_PREFIX)).toBeTruthy();
 
       expect(response).toHaveProperty('message');
     });
