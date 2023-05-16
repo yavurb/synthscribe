@@ -9,19 +9,26 @@ import { User, UserSchema } from './schemas/User.schema';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
+import { UserSeed } from './seeds/user.seed';
+import { ApiKey, ApiKeySchema } from './schemas';
+
 describe('Auth Service', () => {
   let app: INestApplication;
   let authService: AuthService;
   let mongo: MongoMemoryServer;
+  let userSeed: UserSeed;
 
   beforeAll(async () => {
     mongo = await MongoMemoryServer.create();
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService],
+      providers: [AuthService, UserSeed],
       imports: [
         ConfigModule.forRoot(),
         MongooseModule.forRoot(mongo.getUri()),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+        MongooseModule.forFeature([
+          { name: User.name, schema: UserSchema },
+          { name: ApiKey.name, schema: ApiKeySchema },
+        ]),
         JwtModule.register({
           secret: 'RANDOMSECRET',
           signOptions: { expiresIn: '7d' },
@@ -33,6 +40,9 @@ describe('Auth Service', () => {
     await app.init();
 
     authService = app.get<AuthService>(AuthService);
+    userSeed = app.get<UserSeed>(UserSeed);
+
+    await userSeed.injectUser();
   });
 
   afterAll(async () => {
@@ -101,6 +111,17 @@ describe('Auth Service', () => {
           password: 'wrongpassword',
         }),
       ).rejects.toThrow('Password do not match');
+    });
+  });
+
+  describe('Get API token', () => {
+    it('Should create a new API token', async () => {
+      const response = await authService.getApiToken(userSeed.userID);
+
+      expect(typeof response.apikey).toBe('string');
+      expect(response.apikey.startsWith('sytk')).toBeTruthy();
+
+      expect(response).toHaveProperty('message');
     });
   });
 });
