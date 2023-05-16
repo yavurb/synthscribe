@@ -14,6 +14,8 @@ import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
+import { ConfigService } from '@nestjs/config';
+
 import { SingInDto, SingUpDto } from './dtos';
 import { UserFilters } from './types';
 import { ApiKey } from './schemas';
@@ -23,10 +25,11 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(ApiKey.name) private apiKeyModel: Model<ApiKey>,
+    private configService: ConfigService,
     private jwtService: JwtService,
   ) {}
 
-  private APIKEY_PREFIX = 'sytk';
+  private APIKEY_PREFIX = this.configService.get<string>('APIKEY_PREFIX');
 
   private async lookupAccount(filters: UserFilters): Promise<UserDocument> {
     const filterKeys = Object.keys(filters);
