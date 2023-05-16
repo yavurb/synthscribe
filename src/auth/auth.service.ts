@@ -17,6 +17,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 import { SingInDto, SingUpDto } from './dtos';
+import { UserPayload } from './interfaces';
 import { UserFilters } from './types';
 import { ApiKey } from './schemas';
 
@@ -66,7 +67,11 @@ export class AuthService {
 
     const newUser = (await user.save()).toJSON();
 
-    const token = await this.jwtService.signAsync({ userId: newUser._id });
+    const payload: UserPayload = {
+      userId: newUser._id.toString(),
+      role: newUser.role,
+    };
+    const token = await this.jwtService.signAsync(payload);
 
     return { token, userId: newUser._id.toString() };
   }
@@ -85,8 +90,9 @@ export class AuthService {
     if (!passwordMathed)
       throw new HttpException('Password do not match', HttpStatus.BAD_REQUEST);
 
-    const sessinPayload = {
-      userId: user._id,
+    const sessinPayload: UserPayload = {
+      userId: user._id.toString(),
+      role: user.role,
     };
     const token = await this.jwtService.signAsync(sessinPayload);
 
