@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes } from 'mongoose';
 
-import { ApiScopes } from '../Enums';
+import { ApiScopes } from '../enums';
 import { User } from './User.schema';
 
 export type ApiKeyDocument = HydratedDocument<ApiKey>;
